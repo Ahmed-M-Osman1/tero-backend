@@ -2,7 +2,7 @@
   "name": "translatte",
   "version": "3.0.1",
   "description": "A free and unlimited translate for NodeJS",
-  "main": "index.js",
+  "main": "build/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/extensionsapp/translatte.git"
