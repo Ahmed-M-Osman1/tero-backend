@@ -1,10 +1,11 @@
 import express from 'express';
 import translate from "./src";
-
+import cors from "cors";
 const app = express();
 const port = 3001;
 
 app.use(express.json());
+app.use(cors())
 
 app.get("/", async (_req: express.Request, res: express.Response) => {
     res.send("Welcome to Tero backend.");
