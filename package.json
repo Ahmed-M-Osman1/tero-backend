@@ -54,7 +54,7 @@
     "typescript": "^5.2.2"
   },
   "scripts": {
-    "start": "node build/index.js",
+    "start": "npx tsc && node build/index.js",
     "dev": "nodemon index.ts",
     "build": "npx tsc"
   }
