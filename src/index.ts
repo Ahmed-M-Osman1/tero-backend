@@ -1,7 +1,10 @@
+// @ts-nocheck
 const querystring = require('querystring');
 import { utf8Length } from "./helper/inputCheck";
 import { getToken } from "./helper/getToken";
-import ky from "ky";
+//import got from 'got';
+import axios from "axios";
+
 type option = {
   to: string;
   client?: string;
@@ -101,50 +104,43 @@ const translate = async (text: string, opts: option) => {
   }
 
   let translate = {};
+
   const translate_string = () => {
     return new Promise(async (resolve, reject) => {
-      let t = getToken(text, opts);
+      let t =  getToken(text, opts);
 
-      if (!t) return reject({ google_free: errors[3] });
+      if (!t) return reject({google_free: errors[3]});
 
-      let url =
-        "https://translate.google.com/translate_a/single?" +
+      let url = 'https://translate.google.com/translate_a/single?' +
           querystring.stringify({
-          [t.name]: t.value,
-          client: opts.client,
-          sl: opts.from,
-          tl: opts.to,
-          hl: opts.to,
-          dt: ["at", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t"],
-          ie: "UTF-8",
-          oe: "UTF-8",
-          otf: 1,
-          ssel: 0,
-          tsel: 0,
-          kc: 7,
-          q: text,
-        });
-
-      try {
-        await ky(url)
-          .json()
-          .then(function (response) {
-            // handle success
-            return (translate.body = response);
-          })
-          .catch(function (error) {
-            // handle error
-            console.log(error);
-          })
-          .finally(function () {
-            // always executed
+            [t.name]: t.value,
+            client: opts.client,
+            sl: opts.from,
+            tl: opts.to,
+            hl: opts.to,
+            dt: ['at', 'bd', 'ex', 'ld', 'md', 'qca', 'rw', 'rm', 'ss', 't'],
+            ie: 'UTF-8',
+            oe: 'UTF-8',
+            otf: 1,
+            ssel: 0,
+            tsel: 0,
+            kc: 7,
+            q: text
           });
+      try {
+         await axios.post(url).then(res=>{
+           translate = res.data
+        });
       } catch (e) {
-        return reject({ google_free: errors[4] });
+        return reject({google_free: errors[4]});
       }
-      console.log(translate);
-      result.raw = opts.raw ? JSON.stringify(translate.body) : "";
-      let body = translate.body;
+
+      result.raw = opts.raw
+          ? JSON.stringify(translate)
+          : '';
+
+      let body = translate;
+
       body[0].forEach(obj => {
         if (obj[0]) {
           result.text += obj[0];
@@ -161,8 +157,8 @@ const translate = async (text: string, opts: option) => {
       if (body[7] && body[7][0]) {
         let str = body[7][0];
 
-        str = str.replace(/<b><i>/g, "[");
-        str = str.replace(/<\/i><\/b>/g, "]");
+        str = str.replace(/<b><i>/g, '[');
+        str = str.replace(/<\/i><\/b>/g, ']');
 
         result.from.text.value = str;
 
@@ -173,7 +169,9 @@ const translate = async (text: string, opts: option) => {
         }
       }
 
-      return result.text ? resolve(result) : reject({ google_free: errors[2] });
+      return result.text
+          ? resolve(result)
+          : reject({google_free: errors[2]});
     });
   };
   return translate_string();
