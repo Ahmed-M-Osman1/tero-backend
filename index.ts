@@ -6,23 +6,23 @@ const port = 3001;
 
 app.use(express.json());
 
-app.get("/", async (_req: any, res: { send: (arg0: string) => void; }) => {
+app.get("/", async (_req: express.Request, res: express.Response) => {
     res.send("Welcome to Tero backend.");
 });
 
-app.post("/translate", async (req: { body: {text:string, to:string} }, res: { send: (arg0: string) => void; })=> {
+app.post("/translate", async (req: express.Request, res: express.Response)=> {
     translate(req.body.text, {
         from: 'auto',
         to: req.body.to,
         client: "t",
         services: { google_free: true },
         priority: ["google_free"],
-    }).then(res => {
-        console.log(res);
+    }).then(resp => {
+        res.send(resp)
     }).catch(err => {
-        console.error(err);
+        res.send(err)
     });
-    res.send("get works")
+
 })
 app.listen(port, () => {
     console.log(`app listen on ${port}`);
